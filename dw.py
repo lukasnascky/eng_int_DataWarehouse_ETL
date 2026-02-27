@@ -183,3 +183,47 @@ historico_salario.to_csv('historico_salario.csv')
 
 
 # TABELA FUNCIONARIOS
+df_funcionarios = pd.read_sql('SELECT * FROM funcionarios', engine_rh)
+df_departamentos = pd.read_sql('SELECT id_departamento, nome_depto FROM departamentos', engine_rh)
+
+funcionarios = pd.merge(df_funcionarios, df_departamentos, on='id_departamento')
+
+funcionarios['nome_completo'] = funcionarios['nome_completo'].str.upper()
+funcionarios['nr_cpf'] = funcionarios['nr_cpf'].astype(str).str.replace(
+    r'(\d{3})(\d{3})(\d{3})(\d{2})', 
+    r'\1.\2.\3-\4', 
+    regex=True
+)
+funcionarios['data_nascimento'] = pd.to_datetime(funcionarios['data_nascimento'])
+funcionarios['data_admissao'] = pd.to_datetime(funcionarios['data_admissao'])
+funcionarios['data_demissao'] = pd.to_datetime(funcionarios['data_demissao'])
+funcionarios['telefone'] = funcionarios['telefone'].astype(str).str.replace(r'\D', '', regex=True)
+funcionarios['telefone'] = funcionarios['telefone'].str.replace(
+    r'(\d{2})(\d{4,5})(\d{4})', 
+    r'(\1) \2-\3', 
+    regex=True
+)
+funcionarios['endereco'] =  funcionarios['endereco'].str.upper()
+funcionarios['cep'] = funcionarios['cep'].astype(str).str.replace(r'\D', '', regex=True)
+funcionarios['cep'] = funcionarios['cep'].str.replace(
+    r'(\d{5})(\d{3})', 
+    r'\1-\2', 
+    regex=True
+)
+funcionarios['status'] = funcionarios['status'].map({1: True, 0: False})
+funcionarios['nome_depto'] = funcionarios['nome_depto'].str.upper()
+
+funcionarios = funcionarios[[
+    'matricula', 'nome_completo', 'nr_cpf', 'data_nascimento', 'data_admissao', 'data_demissao', 
+    'id_cargo', 'nome_depto','id_filial_rh', 'salario', 'email', 'telefone', 'endereco', 'cep', 'status'
+]]
+
+funcionarios = funcionarios.rename(columns={
+    'matricula': 'id_funcionario',
+    'nr_cpf': 'cpf_funcionario',
+    'nome_cargo': 'cargo',
+    'nome_depto': 'departamento',
+    'id_filial_rh': 'id_filial'
+})
+
+funcionarios.to_csv('funcionarios.csv')
