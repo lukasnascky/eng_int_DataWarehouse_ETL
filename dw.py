@@ -152,4 +152,16 @@ fornecedores = fornecedores.rename(columns={'ativo': 'status'})
 # TABELA ITENS ENTRADA
 itens_entrada = pd.read_sql('SELECT * FROM itens_entrada', engine_estoque)
 
-itens_entrada.to_csv('itens_entrada.csv')
+#itens_entrada.to_csv('itens_entrada.csv')
+
+
+# TABELA CARGOS
+cargos = pd.read_sql('SELECT * FROM cargos', engine_rh)
+
+cargos['nome_cargo'] = cargos['nome_cargo'].str.upper()
+cargos['nivel'] = cargos['nivel'].str.upper()
+
+#cargos.to_csv('cargos.csv')
+
+
+# TABELA ESCALAS
