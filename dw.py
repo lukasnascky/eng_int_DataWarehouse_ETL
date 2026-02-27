@@ -165,3 +165,21 @@ cargos['nivel'] = cargos['nivel'].str.upper()
 
 
 # TABELA ESCALAS
+escalas = pd.read_sql('SELECT * FROM escalas', engine_rh)
+
+escalas['dia_semana'] = escalas['dia_semana'].str.upper()
+escalas['tipo_escala'] = escalas['tipo_escala'].str.upper()
+
+#escalas.to_csv('escalas.csv')
+
+
+# TABELA HISTORICO SALARIO
+historico_salario = pd.read_sql('SELECT * FROM historico_salario', engine_rh)
+
+historico_salario['data_alteracao'] = pd.to_datetime(historico_salario['data_alteracao'])
+historico_salario['motivo'] = historico_salario['motivo'].str.upper()
+
+historico_salario.to_csv('historico_salario.csv')
+
+
+# TABELA FUNCIONARIOS
