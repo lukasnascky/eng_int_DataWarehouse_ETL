@@ -23,7 +23,7 @@ filiais = pd.merge(filiais, df_filiais_estoque, left_on='sigla_estoque', right_o
 filiais = pd.merge(filiais, df_filiais_rh, left_on='id_filial', right_on='id_filial_rh')
 
 filiais = filiais[[
-    'id_filial', 'sigla_filial', 'nome_filial', 'razao_social', 'cnpj', 'endereco', 'regiao', 'cidade', 'uf', 'cep', 'telefone', 'gerente_responsavel', 'status'
+    'id_filial', 'sigla_filial', 'nome_filial', 'razao_social', 'cnpj', 'endereco', 'cidade', 'uf', 'regiao', 'cep', 'telefone', 'gerente_responsavel', 'status'
 ]]
 
 filiais['nome_filial'] = filiais['nome_filial'].str.upper()
@@ -35,7 +35,7 @@ filiais['regiao'] = filiais['regiao'].str.upper()
 filiais['gerente_responsavel'] = filiais['gerente_responsavel'].str.upper()
 filiais['status'] = filiais['status'].map({1: True, 0: False})
 
-#filiais.to_csv('filiais.csv')
+filiais.to_csv('filiais.csv')
 
 
 # TABELA VENDAS
@@ -65,3 +65,23 @@ vendas = vendas.rename(columns={
 #vendas.to_csv('vendas.csv')
 
 # TABELA ITENS VENDA
+df_itens_venda = pd.read_sql('SELECT * FROM itens_venda', engine_vendas)
+df_produtos = pd.read_sql('SELECT id_produto, descricao FROM produtos', engine_estoque)
+
+itens_venda = pd.merge(df_itens_venda, df_produtos, left_on='cod_produto', right_on='id_produto')
+
+itens_venda['preco_unitario_centavos'] = itens_venda['preco_unitario_centavos'] / 100
+itens_venda['subtotal_centavos'] = itens_venda['subtotal_centavos'] / 100
+
+itens_venda = itens_venda[[
+    'id_item', 'id_venda', 'cod_produto', 'descricao', 'quantidade', 'preco_unitario_centavos',
+    'subtotal_centavos'
+]]
+
+itens_venda = itens_venda.rename(columns={
+    'descricao': 'nome_produto',
+    'preco_unitario_centavos': 'preco_unitario',
+    'subtotal_centavos': 'subtotal'
+})
+
+#itens_venda.to_csv('itens_venda.csv')
