@@ -23,7 +23,7 @@ filiais = pd.merge(filiais, df_filiais_estoque, left_on='sigla_estoque', right_o
 filiais = pd.merge(filiais, df_filiais_rh, left_on='id_filial', right_on='id_filial_rh')
 
 filiais = filiais[[
-    'id_filial', 'sigla_filial', 'nome_filial', 'razao_social', 'cnpj', 'endereco', 'cidade', 'uf', 'regiao', 'cep', 'telefone', 'gerente_responsavel', 'status'
+    'id_filial', 'nome_filial', 'razao_social', 'cnpj', 'endereco', 'cidade', 'uf', 'regiao', 'cep', 'telefone', 'gerente_responsavel', 'status'
 ]]
 
 filiais['nome_filial'] = filiais['nome_filial'].str.upper()
@@ -64,6 +64,7 @@ vendas = vendas.rename(columns={
 
 #vendas.to_csv('vendas.csv')
 
+
 # TABELA ITENS VENDA
 df_itens_venda = pd.read_sql('SELECT * FROM itens_venda', engine_vendas)
 df_produtos = pd.read_sql('SELECT id_produto, descricao FROM produtos', engine_estoque)
@@ -79,9 +80,76 @@ itens_venda = itens_venda[[
 ]]
 
 itens_venda = itens_venda.rename(columns={
+    'cod_produto': 'id_produto',
     'descricao': 'nome_produto',
     'preco_unitario_centavos': 'preco_unitario',
     'subtotal_centavos': 'subtotal'
 })
 
 #itens_venda.to_csv('itens_venda.csv')
+
+
+# TABELA PRODUTOS
+df_produtos = pd.read_sql('SELECT * FROM produtos', engine_estoque)
+df_categorias = pd.read_sql('SELECT id_categoria, nome_categoria FROM categorias', engine_estoque)
+
+produtos = pd.merge(df_produtos, df_categorias, on='id_categoria')
+
+produtos['nome_categoria'] = produtos['nome_categoria'].str.upper()
+produtos['ativo'] = produtos['ativo'].map({'ativo': True, 'inativo': False})
+
+produtos = produtos[[
+    'id_produto', 'ean', 'descricao', 'nome_categoria', 'unidade', 'preco_custo', 'preco_venda',
+    'margem_lucro', 'peso_gramas', 'controlado', 'ativo', 'data_cadastro'
+]]
+
+produtos = produtos.rename(columns={
+    'descricao': 'nome_produto',
+    'nome_categoria': 'categoria',
+    'ativo': 'status'
+})
+
+#produtos.to_csv('produtos.csv')
+
+
+# TABELA ESTOQUE
+df_entrada = pd.read_sql('SELECT * FROM entradas_mercadoria', engine_estoque)
+de_para_filiais = pd.DataFrame({
+    'id_filial': [1, 2, 3, 4, 5, 6, 7],
+    'sigla_estoque': ['FL-SP-01', 'FL-SP-02', 'FL-RJ-01', 'FL-RJ-02', 'FL-MG-01', 'FL-SP-03', 'FL-DF-01'] 
+})
+
+entradas_mercadoria = pd.merge(de_para_filiais, df_entrada, left_on='sigla_estoque' , right_on='sigla_filial')
+
+entradas_mercadoria['status'] = entradas_mercadoria['status'].map({'ativo': True, 'inativo': False})
+
+entradas_mercadoria = entradas_mercadoria[[
+    'id_entrada', 'id_filial', 'id_fornecedor', 'numero_nf', 'data_entrada', 'valor_total', 'status'
+]]
+
+#entradas_mercadoria.to_csv('entradas_mercadorias.csv')
+
+
+# TABELA FORNECEDORES
+fornecedores = pd.read_sql('SELECT * FROM fornecedores', engine_estoque)
+
+fornecedores['razao_social'] = fornecedores['razao_social'].str.upper()
+fornecedores['nome_fantasia'] = fornecedores['nome_fantasia'].str.upper()
+fornecedores['telefone'] = fornecedores['telefone'].astype(str).str.replace(r'\D', '', regex=True)
+fornecedores['telefone'] = fornecedores['telefone'].str.replace(
+    r'(\d{2})(\d{4,5})(\d{4})', 
+    r'(\1) \2-\3', 
+    regex=True
+)
+fornecedores['cidade'] = fornecedores['cidade'].str.upper()
+fornecedores['ativo'] = fornecedores['ativo'].map({'ativo': True, 'inativo': False})
+
+fornecedores = fornecedores.rename(columns={'ativo': 'status'})
+
+#fornecedores.to_csv('fornecedores.csv')
+
+
+# TABELA ITENS ENTRADA
+itens_entrada = pd.read_sql('SELECT * FROM itens_entrada', engine_estoque)
+
+itens_entrada.to_csv('itens_entrada.csv')
