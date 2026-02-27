@@ -36,3 +36,32 @@ filiais['gerente_responsavel'] = filiais['gerente_responsavel'].str.upper()
 filiais['status'] = filiais['status'].map({1: True, 0: False})
 
 #filiais.to_csv('filiais.csv')
+
+
+# TABELA VENDAS
+df_vendas = pd.read_sql('SELECT * FROM vendas', engine_vendas)
+df_formas_pagamento = pd.read_sql('SELECT * FROM formas_pagamento', engine_vendas)
+
+vendas = pd.merge(df_vendas, df_formas_pagamento, left_on='id_forma_pgto', right_on='id_forma')
+
+vendas['data_venda'] = pd.to_datetime(vendas['data_venda'], format='%d/%m/%Y')
+vendas['valor_total_centavos'] = vendas['valor_total_centavos'] / 100
+vendas['desconto_centavos'] = vendas['desconto_centavos'] / 100
+vendas['descricao'] = vendas['descricao'].str.upper()
+vendas['status'] = vendas['status'].map({'A': True, 'C': False})
+
+vendas = vendas[[
+    'id_venda', 'codigo_filial', 'id_vendedor', 'cpf_cliente', 'descricao', 'data_venda', 'hora_venda',
+    'valor_total_centavos', 'desconto_centavos', 'status'
+]]
+
+vendas = vendas.rename(columns={
+    'codigo_filial': 'id_filial',
+    'descricao': 'forma_pagamento',
+    'valor_total_centavos': 'valor_total',
+    'desconto_centavos': 'desconto'
+})
+
+#vendas.to_csv('vendas.csv')
+
+# TABELA ITENS VENDA
