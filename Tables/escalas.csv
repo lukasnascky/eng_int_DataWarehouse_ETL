@@ -1,4 +1,4 @@
-,id_escala,matricula,dia_semana,hora_inicio,hora_fim,tipo_escala
+,id_escala,id_funcionario,dia_semana,hora_inicio,hora_fim,tipo_escala
 0,1,1001,SEGUNDA,08:00:00,17:00:00,FIXA
 1,2,1001,TERCA,08:00:00,17:00:00,FIXA
 2,3,1001,QUARTA,08:00:00,17:00:00,FIXA

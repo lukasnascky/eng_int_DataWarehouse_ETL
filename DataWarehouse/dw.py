@@ -35,7 +35,7 @@ filiais['regiao'] = filiais['regiao'].str.upper()
 filiais['gerente_responsavel'] = filiais['gerente_responsavel'].str.upper()
 filiais['status'] = filiais['status'].map({1: True, 0: False})
 
-filiais.to_csv('filiais.csv')
+#filiais.to_csv('Tables/filiais.csv')
 
 
 # TABELA VENDAS
@@ -62,7 +62,7 @@ vendas = vendas.rename(columns={
     'desconto_centavos': 'desconto'
 })
 
-#vendas.to_csv('vendas.csv')
+#vendas.to_csv('Tables/vendas.csv')
 
 
 # TABELA ITENS VENDA
@@ -86,7 +86,7 @@ itens_venda = itens_venda.rename(columns={
     'subtotal_centavos': 'subtotal'
 })
 
-#itens_venda.to_csv('itens_venda.csv')
+#itens_venda.to_csv('Tables/itens_venda.csv')
 
 
 # TABELA PRODUTOS
@@ -109,10 +109,10 @@ produtos = produtos.rename(columns={
     'ativo': 'status'
 })
 
-#produtos.to_csv('produtos.csv')
+#produtos.to_csv('Tables/produtos.csv')
 
 
-# TABELA ESTOQUE
+# TABELA ENTRADA MERCADORIAS
 df_entrada = pd.read_sql('SELECT * FROM entradas_mercadoria', engine_estoque)
 de_para_filiais = pd.DataFrame({
     'id_filial': [1, 2, 3, 4, 5, 6, 7],
@@ -127,7 +127,20 @@ entradas_mercadoria = entradas_mercadoria[[
     'id_entrada', 'id_filial', 'id_fornecedor', 'numero_nf', 'data_entrada', 'valor_total', 'status'
 ]]
 
-#entradas_mercadoria.to_csv('entradas_mercadorias.csv')
+#entradas_mercadoria.to_csv('Tables/entradas_mercadorias.csv')
+
+
+#TABELA ESTOQUE
+estoque = pd.read_sql('SELECT * FROM estoque', engine_estoque)
+
+estoque = pd.merge(de_para_filiais, estoque, left_on='sigla_estoque', right_on='sigla_filial')
+
+estoque = estoque[[
+    'id_estoque', 'id_produto', 'id_filial', 'quantidade', 'estoque_minimo', 'estoque_maximo',
+    'ultima_entrada', 'ultima_saida', 'lote', 'validade'
+]]
+
+estoque.to_csv('Tables/estoques.csv')
 
 
 # TABELA FORNECEDORES
@@ -146,13 +159,13 @@ fornecedores['ativo'] = fornecedores['ativo'].map({'ativo': True, 'inativo': Fal
 
 fornecedores = fornecedores.rename(columns={'ativo': 'status'})
 
-#fornecedores.to_csv('fornecedores.csv')
+#fornecedores.to_csv('Tables/fornecedores.csv')
 
 
 # TABELA ITENS ENTRADA
 itens_entrada = pd.read_sql('SELECT * FROM itens_entrada', engine_estoque)
 
-#itens_entrada.to_csv('itens_entrada.csv')
+#itens_entrada.to_csv('Tables/itens_entrada.csv')
 
 
 # TABELA CARGOS
@@ -161,7 +174,7 @@ cargos = pd.read_sql('SELECT * FROM cargos', engine_rh)
 cargos['nome_cargo'] = cargos['nome_cargo'].str.upper()
 cargos['nivel'] = cargos['nivel'].str.upper()
 
-#cargos.to_csv('cargos.csv')
+#cargos.to_csv('Tables/cargos.csv')
 
 
 # TABELA ESCALAS
@@ -170,7 +183,9 @@ escalas = pd.read_sql('SELECT * FROM escalas', engine_rh)
 escalas['dia_semana'] = escalas['dia_semana'].str.upper()
 escalas['tipo_escala'] = escalas['tipo_escala'].str.upper()
 
-#escalas.to_csv('escalas.csv')
+escalas = escalas.rename(columns={'matricula': 'id_funcionario'})
+
+#escalas.to_csv('Tables/escalas.csv')
 
 
 # TABELA HISTORICO SALARIO
@@ -179,7 +194,9 @@ historico_salario = pd.read_sql('SELECT * FROM historico_salario', engine_rh)
 historico_salario['data_alteracao'] = pd.to_datetime(historico_salario['data_alteracao'])
 historico_salario['motivo'] = historico_salario['motivo'].str.upper()
 
-historico_salario.to_csv('historico_salario.csv')
+historico_salario = historico_salario.rename(columns={'matricula': 'id_funcionario'})
+
+#historico_salario.to_csv('Tables/historico_salario.csv')
 
 
 # TABELA FUNCIONARIOS
@@ -226,4 +243,4 @@ funcionarios = funcionarios.rename(columns={
     'id_filial_rh': 'id_filial'
 })
 
-funcionarios.to_csv('funcionarios.csv')
+#funcionarios.to_csv('Tables/funcionarios.csv')
