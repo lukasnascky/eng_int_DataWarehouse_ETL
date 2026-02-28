@@ -5,7 +5,7 @@ engine_vendas = create_engine('postgresql://aluno_readonly:Alunos2026%21@ep-rasp
 engine_estoque = create_engine('postgresql://aluno_readonly:Alunos2026%21@ep-dry-frog-ail6dwj9-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require')
 engine_rh = create_engine('postgresql://aluno_readonly:Alunos2026%21@ep-noisy-unit-aiyj66lx-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require')
 
-engine_dw = create_engine('postgresql+psycopg2://neondb_owner:npg_54WbqlwyeRLg@ep-odd-surf-acyja679-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
+engine_dw = create_engine('postgresql+psycopg2://neondb_owner:npg_sd2BoQH5AVja@ep-tiny-cell-acd1wnhz-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require')
 
 
 # TABELA FILIAIS
@@ -37,6 +37,15 @@ filiais['status'] = filiais['status'].map({1: True, 0: False})
 
 #filiais.to_csv('Tables/filiais.csv')
 
+filiais.to_sql(
+    name='filiais',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA VENDAS
 df_vendas = pd.read_sql('SELECT * FROM vendas', engine_vendas)
@@ -64,6 +73,15 @@ vendas = vendas.rename(columns={
 
 #vendas.to_csv('Tables/vendas.csv')
 
+vendas.to_sql(
+    name='vendas',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA ITENS VENDA
 df_itens_venda = pd.read_sql('SELECT * FROM itens_venda', engine_vendas)
@@ -88,6 +106,15 @@ itens_venda = itens_venda.rename(columns={
 
 #itens_venda.to_csv('Tables/itens_venda.csv')
 
+itens_venda.to_sql(
+    name='itens_venda',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA PRODUTOS
 df_produtos = pd.read_sql('SELECT * FROM produtos', engine_estoque)
@@ -111,6 +138,15 @@ produtos = produtos.rename(columns={
 
 #produtos.to_csv('Tables/produtos.csv')
 
+produtos.to_sql(
+    name='produtos',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA ENTRADA MERCADORIAS
 df_entrada = pd.read_sql('SELECT * FROM entradas_mercadoria', engine_estoque)
@@ -129,6 +165,15 @@ entradas_mercadoria = entradas_mercadoria[[
 
 #entradas_mercadoria.to_csv('Tables/entradas_mercadorias.csv')
 
+entradas_mercadoria.to_sql(
+    name='entradas_mercadoria',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 #TABELA ESTOQUE
 estoque = pd.read_sql('SELECT * FROM estoque', engine_estoque)
@@ -141,6 +186,15 @@ estoque = estoque[[
 ]]
 
 estoque.to_csv('Tables/estoques.csv')
+
+estoque.to_sql(
+    name='estoque',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
 
 
 # TABELA FORNECEDORES
@@ -161,11 +215,29 @@ fornecedores = fornecedores.rename(columns={'ativo': 'status'})
 
 #fornecedores.to_csv('Tables/fornecedores.csv')
 
+fornecedores.to_sql(
+    name='fornecedores',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA ITENS ENTRADA
 itens_entrada = pd.read_sql('SELECT * FROM itens_entrada', engine_estoque)
 
 #itens_entrada.to_csv('Tables/itens_entrada.csv')
+
+itens_entrada.to_sql(
+    name='itens_entrada',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
 
 
 # TABELA CARGOS
@@ -175,6 +247,15 @@ cargos['nome_cargo'] = cargos['nome_cargo'].str.upper()
 cargos['nivel'] = cargos['nivel'].str.upper()
 
 #cargos.to_csv('Tables/cargos.csv')
+
+cargos.to_sql(
+    name='cargos',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
 
 
 # TABELA ESCALAS
@@ -187,6 +268,15 @@ escalas = escalas.rename(columns={'matricula': 'id_funcionario'})
 
 #escalas.to_csv('Tables/escalas.csv')
 
+escalas.to_sql(
+    name='escalas',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
+
 
 # TABELA HISTORICO SALARIO
 historico_salario = pd.read_sql('SELECT * FROM historico_salario', engine_rh)
@@ -197,6 +287,15 @@ historico_salario['motivo'] = historico_salario['motivo'].str.upper()
 historico_salario = historico_salario.rename(columns={'matricula': 'id_funcionario'})
 
 #historico_salario.to_csv('Tables/historico_salario.csv')
+
+historico_salario.to_sql(
+    name='historico_salario',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
 
 
 # TABELA FUNCIONARIOS
@@ -244,3 +343,12 @@ funcionarios = funcionarios.rename(columns={
 })
 
 #funcionarios.to_csv('Tables/funcionarios.csv')
+
+funcionarios.to_sql(
+    name='funcionarios',
+    con=engine_dw,
+    if_exists='replace',
+    index=False,
+    chunksize=1000,
+    method='multi'
+)
